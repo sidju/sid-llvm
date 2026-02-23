@@ -1,23 +1,36 @@
 # sid-llvm
 
-A minimal Rust + LLVM (inkwell) project that demonstrates building an LLVM IR module and emitting a native object file.
+Boilerplate for driving LLVM programmatically to build IR and emit native object
+files, implemented in two languages side-by-side:
+
+| Directory | Language | LLVM binding |
+|-----------|----------|--------------|
+| *(root)*  | Rust     | [inkwell](https://github.com/TheDan64/inkwell) (safe wrapper around `llvm-sys`) |
+| `zig/`    | Zig      | LLVM C API directly via `@cImport` |
+
+Both demos define the same two functions and emit identical IR:
+
+```llvm
+define i64 @add(i64 %0, i64 %1) { … }   ; returns %0 + %1
+define i64 @main() { … }                 ; returns add(40, 2)
+```
+
+---
 
 ## Prerequisites
 
-- Rust toolchain (stable)
-- LLVM 18 development libraries — `inkwell` links against LLVM 18 at **build time** via
-  [`llvm-sys`](https://crates.io/crates/llvm-sys); there is no bundled/prebuilt option, so
-  the libraries must be installed on the build machine.
+LLVM 18 development libraries must be installed on the build machine.
+Neither the Rust nor the Zig build bundles LLVM.
 
-### Installing LLVM 18 on Debian / Ubuntu
+### Debian / Ubuntu
 
 ```sh
 sudo apt-get install llvm-18-dev libpolly-18-dev
 ```
 
-`llvm-18-dev` provides the LLVM 18 headers and static libraries.  
-`libpolly-18-dev` provides the Polly loop-optimiser static library, which `llvm-sys` links
-unconditionally when it is present in the LLVM installation.
+`llvm-18-dev` provides the LLVM 18 headers and libraries.  
+`libpolly-18-dev` is also required because `llvm-sys` (used by the Rust side)
+links Polly unconditionally when it is present in the LLVM installation.
 
 ### macOS (Homebrew)
 
@@ -25,25 +38,46 @@ unconditionally when it is present in the LLVM installation.
 brew install llvm@18
 ```
 
+---
+
+## Rust (`/`)
+
 ### Setting the LLVM prefix
 
-If LLVM 18 is installed in a non-standard location (or the `llvm-config` on your `PATH` does
-not point to version 18), set `LLVM_SYS_180_PREFIX` to the LLVM prefix before building:
+If `llvm-config` on your `PATH` does not point to version 18, set
+`LLVM_SYS_180_PREFIX` before building:
 
 ```sh
-export LLVM_SYS_180_PREFIX=/usr/lib/llvm-18   # adjust to your installation path
+export LLVM_SYS_180_PREFIX=/usr/lib/llvm-18   # adjust as needed
 ```
 
-## Usage
-
-Print LLVM IR to stdout:
+### Usage
 
 ```sh
-cargo run -- --emit-llvm
+cargo run -- --emit-llvm          # print LLVM IR to stdout
+cargo run -- --out out.o          # write a native object file
 ```
 
-Compile to an object file:
+---
+
+## Zig (`zig/`)
+
+Requires Zig ≥ 0.16.  The build system uses the LLVM C API directly via
+`@cImport`.
+
+### Setting the LLVM prefix
+
+Pass the prefix as a build option (defaults to `/usr/lib/llvm-18`):
 
 ```sh
-cargo run -- --out out.o
+zig build -Dllvm-prefix=/usr/lib/llvm-18          # Debian/Ubuntu default
+zig build -Dllvm-prefix=$(brew --prefix llvm@18)  # macOS Homebrew
+```
+
+### Usage
+
+```sh
+cd zig
+zig build run -- --emit-llvm      # print LLVM IR to stdout
+zig build run -- --out out.o      # write a native object file
 ```
