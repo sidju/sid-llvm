@@ -1,0 +1,20 @@
+[package]
+name = "sid-llvm"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# Ergonomic error handling — provides the `?` operator with rich context and the
+# `anyhow::Result` / `anyhow::Error` types used throughout the codebase.
+anyhow = "1"
+# Command-line argument parsing — the `derive` feature enables the `#[derive(Parser)]`
+# macro used in `main.rs` to declare CLI flags declaratively.
+clap = { version = "4", features = ["derive"] }
+# Safe, high-level Rust bindings to the LLVM C API (wraps `llvm-sys`).
+# `llvm18-0` selects the LLVM 18.0 API; a matching LLVM 18 installation is required at
+# build time (see README for system package requirements).
+inkwell = { version = "0.5", features = ["llvm18-0"] }
+
+[profile.release]
+lto = "thin"
+codegen-units = 1  # maximise inlining across the LLVM back-end boundary
