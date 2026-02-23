@@ -44,4 +44,16 @@ pub fn build(b: *std.Build) void {
     if (b.args) |a| run.addArgs(a);
     const run_step = b.step("run", "Build and run (pass -- --emit-llvm or -- --out <file>)");
     run_step.dependOn(&run.step);
+
+    const parser_test_mod = b.createModule(.{
+        .root_source_file = b.path("src/parse/mod.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    const parser_tests = b.addTest(.{
+        .root_module = parser_test_mod,
+    });
+    const run_parser_tests = b.addRunArtifact(parser_tests);
+    const test_step = b.step("test", "Run parser tests");
+    test_step.dependOn(&run_parser_tests.step);
 }

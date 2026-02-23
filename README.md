@@ -22,6 +22,26 @@ define i64 @main() { … }                 ; returns add(40, 2)
 LLVM 18 development libraries must be installed on the build machine.
 Neither the Rust nor the Zig build bundles LLVM.
 
+### Nix (recommended)
+
+This repo includes a `flake.nix` dev shell with LLVM 18, Rust tooling, Zig,
+`just`, and `zig-zlint` (when available in nixpkgs):
+
+```sh
+nix develop
+```
+
+Inside the shell:
+
+- Rust can use `cargo` directly (the shell exports `LLVM_SYS_180_PREFIX`)
+- Zig should use the provided prefix:
+
+```sh
+cd zig
+zig build -Dllvm-prefix="$ZIG_LLVM_PREFIX" run -- --emit-llvm
+zig build test
+```
+
 ### Debian / Ubuntu
 
 ```sh
@@ -80,4 +100,10 @@ zig build -Dllvm-prefix=$(brew --prefix llvm@18)  # macOS Homebrew
 cd zig
 zig build run -- --emit-llvm      # print LLVM IR to stdout
 zig build run -- --out out.o      # write a native object file
+zig build test                    # run parser tests
 ```
+
+If you use [`just`](https://github.com/casey/just), common Zig commands are also
+available via `zig/justfile` (e.g. `just test`, `just emit-llvm`), and they
+automatically pass `-Dllvm-prefix` using `ZIG_LLVM_PREFIX` (falling back to
+`/usr/lib/llvm-18`).

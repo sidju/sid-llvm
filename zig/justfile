@@ -1,0 +1,26 @@
+set shell := ["bash", "-cu"]
+llvm_prefix := env_var_or_default("ZIG_LLVM_PREFIX", "/usr/lib/llvm-18")
+
+default:
+  @just --list
+
+build:
+  zig build -Dllvm-prefix={{llvm_prefix}}
+
+test:
+  zig build -Dllvm-prefix={{llvm_prefix}} test
+
+run *args:
+  zig build -Dllvm-prefix={{llvm_prefix}} run -- {{args}}
+
+emit-llvm:
+  zig build -Dllvm-prefix={{llvm_prefix}} run -- --emit-llvm
+
+emit-object out="out.o":
+  zig build -Dllvm-prefix={{llvm_prefix}} run -- --out {{out}}
+
+fmt:
+  zig fmt build.zig src/**/*.zig
+
+lint:
+  command -v zig-zlint >/dev/null && zig-zlint . || { echo "zig-zlint not installed"; exit 1; }
