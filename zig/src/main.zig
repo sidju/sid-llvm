@@ -5,9 +5,9 @@ const c = @cImport({
 });
 const llvm_backend = @import("llvm_backend.zig");
 
-pub fn main(init: std.process.Init.Minimal) void {
-    var iter = std.process.Args.Iterator.init(init.args);
-    _ = iter.next(); // skip argv[0]
+pub fn main() void {
+    var iter = std.process.args();
+    _ = iter.skip(); // skip argv[0]
 
     var emit_llvm = false;
     // `out` must be [:0]const u8 (null-terminated) so that `out.ptr` is a

@@ -38,6 +38,7 @@
               llvmPkgs.libllvm
               llvmPkgs.clang
               llvmPkgs.lld
+              bash
               pkg-config
               zig
               just
