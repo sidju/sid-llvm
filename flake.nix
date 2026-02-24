@@ -1,5 +1,5 @@
 {
-  description = "sid-llvm development shell (Rust + Zig + LLVM 18)";
+  description = "sid-llvm development shell (Rust + LLVM 18)";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -40,13 +40,11 @@
               llvmPkgs.lld
               bash
               pkg-config
-              zig
               just
-            ] ++ lib.optional (builtins.hasAttr "zig-zlint" pkgs) (builtins.getAttr "zig-zlint" pkgs);
+            ];
 
             LLVM_SYS_180_PREFIX = "${llvmPrefix}";
             LLVM_CONFIG_PATH = "${llvmPrefix}/bin/llvm-config";
-            ZIG_LLVM_PREFIX = "${llvmPrefix}";
             LIBCLANG_PATH = "${llvmLib}/lib";
             LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [ llvmPkgs.libllvm ];
 
@@ -54,7 +52,6 @@
               export PATH="${llvmPrefix}/bin:$PATH"
               echo "sid-llvm dev shell"
               echo "  LLVM_SYS_180_PREFIX=$LLVM_SYS_180_PREFIX"
-              echo "  For Zig: zig build -Dllvm-prefix=\"$ZIG_LLVM_PREFIX\""
             '';
           };
         });
