@@ -1,9 +1,14 @@
 use clap::Parser;
 
+mod ast;
 mod llvm_backend;
+mod parse;
 
 #[derive(Parser)]
 struct Args {
+    /// Source file to parse (omit to run the hard-coded demo)
+    source: Option<String>,
+
     /// Print LLVM IR to stdout instead of writing an object file
     #[arg(long)]
     emit_llvm: bool,
@@ -15,6 +20,16 @@ struct Args {
 
 fn main() -> anyhow::Result<()> {
     let args = Args::parse();
+
+    if let Some(path) = &args.source {
+        let source = std::fs::read_to_string(path)?;
+        let (program, consumed) = parse::parse_str(&source)?;
+        println!("Parsed {} program value(s), consumes {} parent-stack entries.", program.len(), consumed);
+        for (i, v) in program.iter().enumerate() {
+            println!("  [{i}] {v:?}");
+        }
+        return Ok(());
+    }
 
     let module = llvm_backend::compile_demo_module("sid_demo")?;
 

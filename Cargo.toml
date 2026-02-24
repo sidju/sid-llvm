@@ -4,6 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+# Unicode grapheme cluster segmentation — required by the parser to correctly
+# handle multi-codepoint characters (emoji, combining marks, etc.) in source.
+unicode-segmentation = "1"
 # Ergonomic error handling — provides the `?` operator with rich context and the
 # `anyhow::Result` / `anyhow::Error` types used throughout the codebase.
 anyhow = "1"

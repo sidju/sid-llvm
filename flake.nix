@@ -40,13 +40,15 @@
               llvmPkgs.lld
               bash
               pkg-config
+              libffi
+              libxml2
               just
             ];
 
             LLVM_SYS_180_PREFIX = "${llvmPrefix}";
             LLVM_CONFIG_PATH = "${llvmPrefix}/bin/llvm-config";
             LIBCLANG_PATH = "${llvmLib}/lib";
-            LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [ llvmPkgs.libllvm ];
+            LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [ llvmPkgs.libllvm pkgs.libffi pkgs.libxml2 ];
 
             shellHook = ''
               export PATH="${llvmPrefix}/bin:$PATH"
